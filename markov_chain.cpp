@@ -9,7 +9,7 @@ MarkovChain::MarkovChain(map<deque<string>, map<string, double> > transitions_ma
 }
     
 MarkovChain::MarkovChain() {
-    map<deque<string>, map<string, double> > transitions_matrix;
+    //map<deque<string>, map<string, double> > transitions_matrix;
 }
 
 
@@ -68,19 +68,19 @@ void MarkovChain::AddTextToChain(const vector<string>& new_text, int power_of_ch
         }
 
         if (i <  power_of_chain) { 
-            current_condition.push_front(new_text[i-1]);
+            current_condition.push_back(new_text[i-1]);
             continue;
         }
         
         if (i == power_of_chain) { 
-            current_condition.push_front(new_text[i-1]);
+            current_condition.push_back(new_text[i-1]);
             this->InsertInChain(current_condition, new_text[i]);
             continue;
         }
 
 
-        current_condition.pop_back();
-        current_condition.push_front(new_text[i-1]);
+        current_condition.pop_front();
+        current_condition.push_back(new_text[i-1]);
         this->InsertInChain(current_condition, new_text[i]);
     }
 
@@ -110,13 +110,15 @@ istream& operator >> (istream& is, MarkovChain& markov_chain) {
     while (cur_string[0] != '.') {
         
         current_condition.clear();
-        current_condition.push_front(cur_string);
+        current_condition.push_back(cur_string);
         
         is >> cur_string;
     
         while(cur_string[0] != ':') { 
+            
+            current_condition.push_back(cur_string);
             is >> cur_string;
-            current_condition.push_front(cur_string);
+            
         }
                 
         is >> cur_string;
@@ -129,9 +131,10 @@ istream& operator >> (istream& is, MarkovChain& markov_chain) {
             string new_state = cur_string;
             is >> cur_string;
             double new_prob = atof(cur_string.c_str());
+            set_of_next_states.insert(pair<string, double>(new_state, new_prob));
+            
             is >> cur_string;
             
-            set_of_next_states.insert(pair<string, double>(new_state, new_prob));
         }
         
         markov_chain.transitions_matrix.insert(pair< deque<string>, map<string, double> >(current_condition, set_of_next_states));
@@ -153,23 +156,23 @@ ostream& operator << (ostream& os, MarkovChain& markov_chain) {
 
         for (int i = 0; i < static_cast<int>(it_chain->first.size() ); ++i) { 
             
-            cout << it_chain->first[i] << " ";
+            os << it_chain->first[i] << " ";
             
         }
             
-        cout << ": ";
+        os << ": ";
 
         for (map<string, double>:: iterator it_state = it_chain->second.begin(); it_state != it_chain->second.end(); ++it_state) {
             
-            cout << it_state->first << " ";
-            cout << it_state->second << " ";
+            os << it_state->first << " ";
+            os << it_state->second << " ";
             
         }
         
-        cout << "; " << endl;
+        os << "; " << endl;
     }
     
-    cout << ". " << endl;
+    os << ". " << endl;
  
     return os;
 }

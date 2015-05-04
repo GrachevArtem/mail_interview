@@ -1,0 +1,7 @@
+l
+3
+./test_p3.chain
+https://dl.dropboxusercontent.com/u/52350276/Alice_in_Wonderland.txt
+https://dl.dropboxusercontent.com/u/52350276/Hearts_of_Three.txt
+
+

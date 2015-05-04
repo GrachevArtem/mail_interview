@@ -1,6 +1,6 @@
 e
-./chain.1
-1
-bb
-100
+./test_p3.chain
+3
+a cigarette and
+1000
 

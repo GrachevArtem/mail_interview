@@ -5,15 +5,9 @@
 #include<iostream>
 
 #include <string>
-//using std::string;
 #include <vector>
-//using std::vector;
 #include <map>
-//using std::map;
-//using std::multimap;
 #include <deque>
-//using std::deque;
-//using std::pair;
 
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */

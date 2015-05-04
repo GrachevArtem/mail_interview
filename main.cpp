@@ -3,22 +3,10 @@
 #include <cstdio>
 #include <cstdlib>
 #include "markov_chain.h"
+#include "text_downloader.h"
 #include <iostream>
 #include <string>
-#include <curl/curl.h>
-#include <sstream>
 #include <vector>
-
-
-//using std::cout;
-//using std::cin;
-//using std::endl;
-//#include "curl/curl.h"
-//#pragma comment(lib,"curllib.lib")
-//using std::string;
-//using std::vector;
-
-
 
 
 using namespace std;
@@ -28,41 +16,6 @@ using namespace std;
 
 
 
-static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
-{
-    ((string*)userp)->append((char*)contents, size * nmemb);
-    return size * nmemb;
-}
-
-//"https://dl.dropboxusercontent.com/u/37499722/1.txt"
-
-
-void InputOneText(const char* link_on_text, vector<string>* text) {
-       
-    CURL *curl;
-    CURLcode res;
-    
-    string readBuffer;
- 
-    curl = curl_easy_init();
-    if(curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, link_on_text);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-        res = curl_easy_perform(curl);
-        curl_easy_cleanup(curl);
-
-    }
-    
-    istringstream ist(readBuffer);
-    
-    string new_string;
-    while ( ist >> new_string ) {
-        text->push_back(new_string);
-    }
-
-    
-}
 
 
 void LearningPart() { 
@@ -70,6 +23,13 @@ void LearningPart() {
     cout << "Enter power of chain: " << endl;
     int power_of_chain;
     cin >> power_of_chain;
+    
+        
+
+    string chain_filename;
+    cout << "Enter the name of file for chain: " << endl;
+    cin >> chain_filename;
+    
     
     cout << "Enter text's links:" << endl;
     
@@ -80,18 +40,18 @@ void LearningPart() {
         links.push_back(current_link);
     }
     
-    vector< vector< string> > all_texts;
-    vector<string> current_text;
     
-    for (int i = 0; i < static_cast<int>(links.size()); ++i) { 
-        current_text.clear();
-        InputOneText(links[i].c_str(), &current_text);
-        all_texts.push_back(current_text);
-    }
+    TextDownloader text_downloader;
+    text_downloader.GetTextsFromLinks(links);
     
     MarkovChain markov_chain;
-    markov_chain.LearnChain(all_texts, power_of_chain);
-    cout << markov_chain;
+    markov_chain.LearnChain(text_downloader.all_texts, power_of_chain);
+    
+    ofstream out_f;
+    out_f.open(chain_filename.c_str());
+    out_f << markov_chain;
+    out_f.close();
+    //cout << markov_chain;
 
 }
  
@@ -114,7 +74,7 @@ void LearningPart() {
     
     for (int i = 0; i < power_of_chain; ++i) { 
         cin >> current_word;
-        current_condition.push_front(current_word);
+        current_condition.push_back(current_word);
     }
    
     cout << "Enter the number of words you want to generate: " << endl;
@@ -143,8 +103,8 @@ void LearningPart() {
         
         cout << new_word << endl;
         
-        current_condition.pop_back();
-        current_condition.push_front(new_word);
+        current_condition.pop_front();
+        current_condition.push_back(new_word);
         
     }
 
@@ -166,7 +126,7 @@ int main(void) {
     } else if (user_choose == 'e' || user_choose == 'E') { 
         ExploitationPart();
     } else {
-        //error;
+        cout << "Undefined character" << endl; 
     }
 
     
